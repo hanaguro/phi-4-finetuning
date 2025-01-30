@@ -7,7 +7,7 @@ from extract_text import extract_text_from_pdf, extract_text_from_mail, is_email
 
 # OllamaのAPIエンドポイント
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
-OUPUTS_DIR = "./output_json"
+OUTPUT_DIR = "./output_json"
 MODEL = "phi4"
 #MODEL = "hf.co/alfredplpl/gemma-2-2b-jpn-it-gguf"
 #MODEL = "deepseek-r1:14b"
@@ -33,7 +33,7 @@ def main():
             target_files.append(os.path.join(root, file))
 
     for file in target_files:
-        save_path = OUTPUTS_DIR + os.path.splitext(file)[0] + ".json"
+        save_path = OUTPUT_DIR + os.path.splitext(file)[0] + ".json"
         print(save_path)
 
         # 既に保存されている場合はスキップ
