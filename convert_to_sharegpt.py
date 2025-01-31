@@ -6,29 +6,32 @@ with open("merged.json", "r", encoding="utf-8") as f:
 
 converted_data = []
 for i, item in enumerate(alpaca_data):
-    # "instruction", "input", "output" がある想定
-    instruction = item.get("instruction", "")
-    input_text = item.get("input", "")
-    output_text = item.get("output", "")
+    # .strip() を適用する前に、明示的に str() に変換
+    instruction = str(item.get("instruction", "")).strip()
+    input_text = str(item.get("input", "")).strip()
+    output_text = str(item.get("output", "")).strip()
 
-    # ユーザのメッセージ: instruction + (改行してinputを続ける) などお好みで
+    # ユーザのメッセージを構築
     user_message = instruction
     if input_text:
-        # 必要に応じて結合方式を変える
         user_message += f"\n{input_text}"
 
-    # それぞれ ShareGPT形式の会話オブジェクトに
+    # ShareGPT形式の `conversations` に変換
     conversations = [
         {"from": "human", "value": user_message},
-        {"from": "assistant", "value": output_text},
+        {"from": "assistant", "value": output_text}
     ]
 
+    # 変換後のデータ
     converted_data.append({
-        "id": f"conversation_{i+1:04d}",
-        "conversations": conversations
+        "id": f"conversation_{i+1:04d}",  # `conversation_id` ではなく `id` に統一
+        "conversations": conversations    # ShareGPT形式の `conversations` を作成
     })
 
-# ShareGPT形式のJSONファイルとして書き出す
-with open("merged_sharegpt.json", "w", encoding="utf-8") as f:
+# JSONファイルとして書き出す
+output_file = "merged_sharegpt.json"
+with open(output_file, "w", encoding="utf-8") as f:
     json.dump(converted_data, f, ensure_ascii=False, indent=2)
+
+print(f"Converted {len(converted_data)} conversations. Saved to {output_file}")
 
