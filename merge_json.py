@@ -14,6 +14,7 @@ def extract_and_parse_json(text: str):
     start_match = re.search(r'[\{\[]', text)
     if not start_match:
         # JSON らしき部分がなければ空のリストを返す
+        print("No { or [ found")
         return []
     start_index = start_match.start()
     
@@ -21,6 +22,7 @@ def extract_and_parse_json(text: str):
     end_match = re.search(r'[\}\]](?!.*[\}\]])', text)
     if not end_match:
         # JSON らしき部分がなければ空のリストを返す
+        print("No } or ] found")
         return []
     end_index = end_match.end()
     
@@ -29,13 +31,17 @@ def extract_and_parse_json(text: str):
     
     # もし抜き出した部分が '[' で始まっていなければ、全体を配列として解釈させるために '[...]' で囲む
     if not candidate.startswith('['):
-        candidate = f"[{candidate}]"
+        candidate = f"[{candidate}"
+
+    if not candidate.endswith(']'):
+        candidate = f"{candidate}]"
     
     # JSON パースを試みる
     try:
         parsed = json.loads(candidate)
     except json.JSONDecodeError:
         # パースに失敗したら空のリストにしておく (もしくはログ出力など)
+        print(f"Failed to parse JSON: {candidate}")
         return []
     
     # パース結果が dict なら単一オブジェクトなのでリストに変換、list ならそのまま返す
@@ -45,6 +51,7 @@ def extract_and_parse_json(text: str):
         return parsed
     else:
         # それ以外の型(文字列や数値など)がトップに来ることは想定外なので空リスト
+        print(f"Unexpected type: {type(parsed)}")
         return []
 
 def merge_json_files(directory: str, output_file: str):
@@ -65,7 +72,6 @@ def merge_json_files(directory: str, output_file: str):
             
             # ファイルの内容から JSON を抽出＆パース
             data = extract_and_parse_json(text)
-            print(data)
     
             # パース結果を結合
             all_data.extend(data)
