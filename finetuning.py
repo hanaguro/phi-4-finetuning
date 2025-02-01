@@ -7,12 +7,16 @@ from unsloth import FastLanguageModel
 from unsloth.chat_templates import standardize_sharegpt, get_chat_template, train_on_responses_only
 
 DATA_FILE="merged_sharegpt.json"
+max_seq_length = 2048
 #max_seq_length = 1024   # 2048→1024に下げるとさらにメモリ削減
-max_seq_length = 512
+#max_seq_length = 512
 load_in_4bit = True     # 4bit量子化でメモリ削減
+#load_in_4bit = False
+load_in_8bit = False
 #fp16 = True             # FP16を有効化（GPUによってはbfloat16でもよい）
 fp16 = False
 bf16 = True
+max_steps = 1000
 
 # ---------- 1) GPUでモデルロード (4bit) ----------
 model, tokenizer = FastLanguageModel.from_pretrained(
@@ -20,6 +24,7 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="./Phi-4",
     max_seq_length=max_seq_length,
     load_in_4bit=load_in_4bit,  # 4bit量子化
+    load_in_8bit=load_in_8bit,
     device_map="auto",          # 自動的にGPUを使う
     # fast_inference=True でもOKですが、最初はオフにして様子見でも可
 )
@@ -27,8 +32,9 @@ model, tokenizer = FastLanguageModel.from_pretrained(
 # LoRAアダプターを接続
 model = FastLanguageModel.get_peft_model(
     model,
-#    r=16,  # LoRA rank (さらに下げる(=8など)と少しメモリ削減になる)
-    r=8,  # LoRA rank
+    r=16,  # LoRA rank (さらに下げる(=8など)と少しメモリ削減になる)
+#    r=8,  # LoRA rank
+#    r=32,  # LoRA rank
     target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
     lora_alpha=16,
     lora_dropout=0,
@@ -66,8 +72,11 @@ trainer = SFTTrainer(
         per_device_train_batch_size=1,  # バッチサイズを小さくしてメモリ節約
         gradient_accumulation_steps=4,  # 大きなバッチを模擬
         warmup_steps=5,
-        max_steps=30,
-        learning_rate=2e-4,
+        max_steps=max_steps,
+#        max_steps=10,
+#        max_steps=1000,
+#        learning_rate=2e-4,
+        learning_rate=5e-5,
         fp16=fp16,               # True なら半精度を有効化 (GPUメモリ削減)
         bf16=bf16,              # GPUがbfloat16対応ならTrueでもOK
         logging_steps=1,
@@ -97,27 +106,27 @@ trainer.train()
 ###
 # (以下は任意：学習後の動作確認例)
 
-messages = [
-    {"role": "user", "content": "Plamo Linuxの代表者は誰ですか?"},
-]
-
-inputs = tokenizer.apply_chat_template(
-    messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
-)
-
-# inputs を GPU に移す
-#inputs = {k: v.to(model.device) for k, v in inputs.items()}
-inputs = inputs.to(model.device)
-outputs = model.generate(
-#    **inputs,
-    input_ids=inputs,
-    max_new_tokens=1024,
-    use_cache=True,
-    temperature=1.5,
-    min_p=0.1
-)
-
-print(tokenizer.batch_decode(outputs))
+#messages = [
+#    {"role": "user", "content": "Plamo Linuxの代表者は誰ですか?"},
+#]
+#
+#inputs = tokenizer.apply_chat_template(
+#    messages, tokenize=True, add_generation_prompt=True, return_tensors="pt"
+#)
+#
+## inputs を GPU に移す
+##inputs = {k: v.to(model.device) for k, v in inputs.items()}
+#inputs = inputs.to(model.device)
+#outputs = model.generate(
+##    **inputs,
+#    input_ids=inputs,
+#    max_new_tokens=1024,
+#    use_cache=True,
+#    temperature=1.5,
+#    min_p=0.1
+#)
+#
+#print(tokenizer.batch_decode(outputs))
 
 # LoRAモデルの保存
 model.save_pretrained("lora_model")
