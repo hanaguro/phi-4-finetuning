@@ -35,11 +35,12 @@ def extract_text_from_mail(mail_path):
     message = BytesParser(policy=default).parsebytes(raw_data)
 
     subject = message["Subject"] or "(No Subject)"
+    date = message["Date"] or "(No Date)"
 
     body_part = message.get_body(preferencelist=("plain", "html"))
     body = body_part.get_content() if body_part else "(No Body)"
 
-    text = "\n\n".join(filter(None, [subject, body]))
+    text = "\n\n".join(filter(None, [subject, date, body]))
 
     return text
 
