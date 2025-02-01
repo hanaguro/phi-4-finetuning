@@ -18,8 +18,9 @@ for i, item in enumerate(alpaca_data):
 
     # ShareGPT形式の `conversations` に変換
     conversations = [
+        {"from": "system", "value": "You are an assistant"},
         {"from": "human", "value": user_message},
-        {"from": "assistant", "value": output_text}
+        {"from": "gpt", "value": output_text}
     ]
 
     # 変換後のデータ
