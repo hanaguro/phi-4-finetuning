@@ -55,9 +55,10 @@ def main():
 
             この文字列から読み取れる情報の指示文と出力を作成してください。
             必ずjson形式で作成してください。
-            jsonのkeyは必ず"instruction"、"input", "output"のみになります。
+            jsonのkeyは必ず"instruction"、"input", "output", "label"のみになります。
             instructionとoutputには主語を必ず入れてください。
             inputには何も入れないでください。
+            labelには「国内」「国際」「経済」「エンタメ」「スポーツ」「IT」の中からinstructionとoutputから連想される最も適切な言葉を入れてください。該当しない場合は「その他」にしてください。
             outputの文字数は多くしてください。多ければ多いほどよいです。
             instructionとoutputだけを読んでも意味が通じるようにしてください。
             instructionとoutput共になるべく詳細に記述してください。
@@ -68,6 +69,7 @@ def main():
             "instruction":"Plamo Linuxの代表者は誰ですか",
             "input":"",
             "output":"こじまみつひろ氏が代表者です。Plamo Linux（プラモ・リナックス）はLinuxディストリビューションの一つです。Slackwareを基本に開発されました。RPMやPortageのようなパッケージシステムを持たず、Slackwareと同じpkgtoolというシンプルなパッケージ管理システムを採用しており、構成がきわめてシンプルになっています。過度なブラックボックス化や自動化を施さず，極力シンプルで見通しの良い環境の保持に努め、Linux の持つボビー性を大切にという考えの基に開発されています。そのため、カスタマイズが非常に簡単にでます。 ",
+            "label": "IT",
             }
             ]
         
