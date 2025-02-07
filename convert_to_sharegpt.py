@@ -10,6 +10,7 @@ for i, item in enumerate(alpaca_data):
     instruction = str(item.get("instruction", "")).strip()
     input_text = str(item.get("input", "")).strip()
     output_text = str(item.get("output", "")).strip()
+    label_text = str(item.get("label", "")).strip()
 
     # ユーザのメッセージを構築
     user_message = instruction
@@ -20,13 +21,15 @@ for i, item in enumerate(alpaca_data):
     conversations = [
         {"from": "system", "value": "You are an assistant"},
         {"from": "human", "value": user_message},
-        {"from": "gpt", "value": output_text}
+        {"from": "gpt", "value": output_text},
     ]
+    label = label_text
 
     # 変換後のデータ
     converted_data.append({
         "id": f"conversation_{i+1:04d}",  # `conversation_id` ではなく `id` に統一
-        "conversations": conversations    # ShareGPT形式の `conversations` を作成
+        "conversations": conversations,    # ShareGPT形式の `conversations` を作成
+        "label": label                    # ShareGPT形式の `label` を作成
     })
 
 # JSONファイルとして書き出す
